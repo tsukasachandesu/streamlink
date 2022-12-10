@@ -37,16 +37,6 @@ class StreamFormatVideo(NamedTuple):
     bitrate: int
     height: int
 
-
-class StreamFormatAudio(NamedTuple):
-    contentType: str
-    sourceStreamVersion: int
-    initUrl: str
-    segmentUrl: str
-    bitrate: int
-    language: str = ""
-
-
 class Segment(NamedTuple):
     num: int
     duration: int
@@ -86,17 +76,6 @@ class UStreamTVWsClient(WebsocketClient):
                 },
                 validate.transform(lambda obj: StreamFormatVideo(**obj))
             ),
-            validate.all(
-                {
-                    "contentType": "audio/mp4",
-                    "sourceStreamVersion": int,
-                    "initUrl": str,
-                    "segmentUrl": str,
-                    "bitrate": int,
-                    validate.optional("language"): str,
-                },
-                validate.transform(lambda obj: StreamFormatAudio(**obj))
-            ),
             object
         )]
     })
@@ -118,7 +97,6 @@ class UStreamTVWsClient(WebsocketClient):
 
     stream_cdn: str = None
     stream_formats_video: List[StreamFormatVideo] = None
-    stream_formats_audio: List[StreamFormatAudio] = None
     stream_initial_id: int = None
 
     def __init__(
@@ -271,7 +249,6 @@ class UStreamTVWsClient(WebsocketClient):
             except PluginError as err:
                 return self._set_error(err)
             self.stream_formats_video = list(filter(lambda f: type(f) is StreamFormatVideo, formats))
-            self.stream_formats_audio = list(filter(lambda f: type(f) is StreamFormatAudio, formats))
 
         # parse segment duration and hashes, and queue new segments
         try:
@@ -534,17 +511,9 @@ class UStreamTV(Plugin):
             log.error(wsclient.stream_error or "Waiting for stream data timed out.")
             wsclient.close()
             return
-
-        if not wsclient.stream_formats_audio:
-            for video in wsclient.stream_formats_video:
-                yield f"{video.height}p", UStreamTVStream(self.session, "video", wsclient, video)
-        else:
-            for video in wsclient.stream_formats_video:
-                for audio in wsclient.stream_formats_audio:
-                    yield f"{video.height}p+a{audio.bitrate}k", MuxedStream(
-                        self.session,
-                        UStreamTVStream(self.session, "video", wsclient, video),
-                        UStreamTVStream(self.session, "audio", wsclient, audio)
+        
+        for video in wsclient.stream_formats_video:
+            yield f"{video.height}p", UStreamTVStream(self.session, "video", wsclient, video)
                     )
 
 
