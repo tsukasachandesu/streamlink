@@ -189,7 +189,7 @@ class UStreamTVWsClient(WebsocketClient):
             return
 
         cmd: str = parsed["cmd"]
-        console.info(cmd)
+        print(cmd)
         args: List[Dict] = parsed["args"]
         log.trace(f"Received '{cmd}' command")
         log.trace(f"{args!r}")
