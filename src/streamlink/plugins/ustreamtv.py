@@ -187,13 +187,11 @@ class UStreamTVWsClient(WebsocketClient):
         except PluginError:
             log.error(f"Could not parse message: {data[:50]}")
             return
-
         cmd: str = parsed["cmd"]
-        print(cmd)
         args: List[Dict] = parsed["args"]
         log.trace(f"Received '{cmd}' command")
         log.trace(f"{args!r}")
-
+        print({args!r})
         handlers = self._MESSAGE_HANDLERS.get(cmd)
         if handlers is not None:
             for arg in args:
