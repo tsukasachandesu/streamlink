@@ -423,7 +423,7 @@ class UStreamTVStream(Stream):
         session,
         kind: str,
         wsclient: UStreamTVWsClient,
-        stream_format: Union[StreamFormatVideo, StreamFormatAudio]
+        stream_format: Union[StreamFormatVideo]
     ):
         super().__init__(session)
         self.kind = kind
