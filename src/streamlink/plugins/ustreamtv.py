@@ -514,8 +514,6 @@ class UStreamTV(Plugin):
         
         for video in wsclient.stream_formats_video:
             yield f"{video.height}p", UStreamTVStream(self.session, "video", wsclient, video)
-                    )
-
 
 __plugin__ = UStreamTV
 
