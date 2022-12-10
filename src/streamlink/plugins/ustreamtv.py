@@ -192,6 +192,7 @@ class UStreamTVWsClient(WebsocketClient):
         log.trace(f"Received '{cmd}' command")
         log.trace(f"{args!r}")
         print(f"{args!r}")
+        
         handlers = self._MESSAGE_HANDLERS.get(cmd)
         if handlers is not None:
             for arg in args:
@@ -510,9 +511,6 @@ class UStreamTV(Plugin):
             log.error(wsclient.stream_error or "Waiting for stream data timed out.")
             wsclient.close()
             return
-        
-        for video in wsclient.stream_formats_video:
-            yield f"{video.height}p", UStreamTVStream(self.session, "video", wsclient, video)
 
 __plugin__ = UStreamTV
 
